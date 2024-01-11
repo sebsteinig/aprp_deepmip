@@ -36,6 +36,15 @@ deepmip_dict['HadCM3B-M2.1aN']  = { \
         'pcolor': 'tab:brown',
         }
 
+# deepmip_dict['HadCM3BL-M2.1aN']  = { \
+#         'ncase' : 4,
+#         'nsens' : 1,
+#         'versn' : 'v1.0',
+#         'group' : 'HadCM3',
+#         'contr' : ["deepmip-eocene-p1-PI", "deepmip-eocene-p1-x1", "deepmip-eocene-p1-x2", "deepmip-eocene-p1-x1"],
+#         'sensi' : ["deepmip-eocene-p1-x1", "deepmip-eocene-p1-x2", "deepmip-eocene-p1-x3", "deepmip-eocene-p1-x3"],
+#         'pcolor': 'tab:brown',
+#         }
 
 deepmip_dict['IPSLCM5A2']    = { \
         'ncase' : 3,
