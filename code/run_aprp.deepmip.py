@@ -2,6 +2,7 @@
 import os
 import aprp_deepmip as aprp
 from deepmip_dict import deepmip_dict
+import subprocess
 
 data_dir    = '/Users/wb19586/Documents/data/deepmip_database/deepmip-eocene-p1/'
 out_dir = '/Users/wb19586/Documents/coding_github/aprp_deepmip/aprp_output_data/deepmip/'
@@ -42,3 +43,40 @@ for model in deepmip_dict.keys():
                        'rsutcs' : prefix2 + 'rsutcs_'+ posfix2}
         out_file    = out_dir + model + '.' + deepmip_dict[model]['contr'][i] +'.to.' + deepmip_dict[model]['sensi'][i] + '.aprp.nc'
         aprp.aprp_main(ctrl_files, months[0], months[1], sens_files, months[0], months[1], out_file)
+
+        lsm_file        = prefix1 + 'sftlf_' + model + '_' + deepmip_dict[model]['contr'][i] + '_' + deepmip_dict[model]['versn'] + '.nc'
+        new_lsm_file    = out_dir + model + '.lsm.nc'
+        out_file_land    = out_dir + model + '.' + deepmip_dict[model]['contr'][i] +'.to.' + deepmip_dict[model]['sensi'][i] + '.aprp.land.nc'
+        out_file_ocean    = out_dir + model + '.' + deepmip_dict[model]['contr'][i] +'.to.' + deepmip_dict[model]['sensi'][i] + '.aprp.ocean.nc'
+
+        # Create land mask file with CDO 
+        cdo_lsm_command = [
+            'cdo', 
+            'setrtoc,50,100,1',
+            '-setrtoc,0,50,0',  
+            lsm_file, 
+            new_lsm_file
+        ]
+
+        # Mask output files with CDO 
+        cdo_land_command = [
+            'cdo', 
+            'ifthen', 
+            new_lsm_file, 
+            out_file,
+            out_file_land
+        ]
+
+        # Mask output files with CDO 
+        cdo_ocean_command = [
+            'cdo', 
+            'ifnotthen', 
+            new_lsm_file, 
+            out_file,
+            out_file_ocean
+        ]
+
+        # Execute the CDO commands
+        # subprocess.run(cdo_lsm_command) 
+        subprocess.run(cdo_land_command)
+        subprocess.run(cdo_ocean_command)
