@@ -14,7 +14,7 @@ if not os.path.exists(out_dir):
     os.makedirs(out_dir)
 
 for model in os.listdir(data_dir + "piControl/"):
-    if model == 'ICON-ESM-LR':
+    if model == 'ICON-ESM-LR' or model == '.DS_Store':
         continue
     print(model)
     prefix1     = data_dir + "piControl/" + model + "/"

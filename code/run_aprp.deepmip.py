@@ -4,7 +4,7 @@ import aprp_deepmip as aprp
 from deepmip_dict import deepmip_dict
 import subprocess
 
-data_dir    = '/Users/wb19586/Documents/data/deepmip_database/deepmip-eocene-p1/'
+data_dir    = '/Volumes/WD_Elements/DeepMIP_database/ceda/deepmip-eocene-p1/'
 out_dir = '/Users/wb19586/Documents/coding_github/aprp_deepmip/aprp_output_data/deepmip/'
 
 months      = [0, 11]
@@ -51,17 +51,18 @@ for model in deepmip_dict.keys():
 
         # Create land mask file with CDO 
         cdo_lsm_command = [
-            'cdo', 
-            'setrtoc,50,100,1',
-            '-setrtoc,0,50,0',  
+            'cdo',
+            '-setrtoc,50,100,1',
+            '-setrtoc,0,50,0',
+            f'-setgrid,{out_file}',  
             lsm_file, 
             new_lsm_file
         ]
 
         # Mask output files with CDO 
         cdo_land_command = [
-            'cdo', 
-            'ifthen', 
+            'cdo',
+            '-ifthen', 
             new_lsm_file, 
             out_file,
             out_file_land
@@ -70,13 +71,13 @@ for model in deepmip_dict.keys():
         # Mask output files with CDO 
         cdo_ocean_command = [
             'cdo', 
-            'ifnotthen', 
+            '-ifnotthen', 
             new_lsm_file, 
             out_file,
             out_file_ocean
         ]
 
         # Execute the CDO commands
-        # subprocess.run(cdo_lsm_command) 
+        subprocess.run(cdo_lsm_command) 
         subprocess.run(cdo_land_command)
         subprocess.run(cdo_ocean_command)

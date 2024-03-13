@@ -18,7 +18,7 @@ import netCDF4 as nc4
 #=================================================================
 # Original Author: Rick Russotto
 # Download from  : https://github.com/rdrussotto/pyAPRP
-# Adapted for DeepMIP simulations by Jiang Zhu (jiangzhu@ucar.edu)
+# Adapted for DeepMIP simulations by Jiang Zhu (jiangzhu@ucar.edu) and Sebastian Steinig
 #=================================================================
 
 def aprp_main(dataPaths1, firstMonth1, lastMonth1, dataPaths2, firstMonth2, lastMonth2, out_file):
@@ -65,6 +65,8 @@ def aprp_main(dataPaths1, firstMonth1, lastMonth1, dataPaths2, firstMonth2, last
     lat.long_name   = 'latitude'
     lon.long_name   = 'longitude'
     time.long_name  = 'time'
+    lat.axis        = 'Y'
+    lon.axis        = 'X'
 
     time    [:] = [15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5]
     lat     [:] = dict1A['lat']       [:]
