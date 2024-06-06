@@ -4,7 +4,8 @@ import ebm_deepmip as ebm
 from deepmip_dict import deepmip_dict
 import subprocess
 
-data_dir    = '/Volumes/WD_Elements/DeepMIP_database/ceda/deepmip-eocene-p1/'
+# data_dir    = '/Volumes/WD_Elements/DeepMIP_database/ceda/deepmip-eocene-p1/'
+data_dir    = '/Users/wb19586/Documents/coding_github/aprp_deepmip/data/deepmip-eocene-p1/'
 out_dir = '/Users/wb19586/Documents/coding_github/aprp_deepmip/ebm_output_data/deepmip/'
 out_dir_aprp = '/Users/wb19586/Documents/coding_github/aprp_deepmip/aprp_output_data/deepmip/'
 
@@ -17,7 +18,7 @@ if not os.path.exists(out_dir):
 
 for model in deepmip_dict.keys():
     print(model)
-    for i in range( (deepmip_dict[model]['ncase'] + deepmip_dict[model]['nsens'])-1):
+    for i in range( (deepmip_dict[model]['ncase'])):
         print(deepmip_dict[model]['contr'][i])
         prefix1     = data_dir + deepmip_dict[model]['group'] + '/' + model + '/' + deepmip_dict[model]['contr'][i] + '/' + deepmip_dict[model]['versn'] + '/climatology/'
         prefix2     = data_dir + deepmip_dict[model]['group'] + '/' + model + '/' + deepmip_dict[model]['sensi'][i] + '/' + deepmip_dict[model]['versn'] + '/climatology/'

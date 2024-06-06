@@ -1,6 +1,7 @@
 
 from cartopy.util import add_cyclic_point
 import xarray as xr
+import numpy as np
 
 def find_varname_from_attribute(ds, attribute, pattern):
     """
@@ -92,6 +93,37 @@ def find_geo_coords(ds):
         raise ValueError("Could not automatically determine the latitude or longitude variable names.")
     
     return lon_name, lat_name
+
+def area_weighted_global_mean(da):
+    """
+    Calculate the area-weighted global mean value of a 2D (lat x lon) xarray DataArray.
+
+    Parameters
+    ----------
+    da : xarray.DataArray
+        2D DataArray with latitude and longitude coordinates.
+
+    Returns
+    -------
+    float
+        Area-weighted global mean value.
+    """
+    
+    lon_name, lat_name = find_geo_coords(da)
+    
+    # Convert latitude to radians
+    lat_radians = np.deg2rad(da[lat_name])
+    
+    # Calculate the weights (area of each grid cell)
+    weights = np.cos(lat_radians)
+    
+    # Ensure the weights sum to 1
+    weights /= weights.sum(dim=lat_name)
+    
+    # Use the xr.DataArray.weighted method to apply weights and compute mean
+    weighted_mean = da.weighted(weights).mean(dim=[lat_name, lon_name]).values
+    
+    return weighted_mean
 
 def calc_tpw(q):
 

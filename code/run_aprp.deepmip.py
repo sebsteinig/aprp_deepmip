@@ -4,7 +4,8 @@ import aprp_deepmip as aprp
 from deepmip_dict import deepmip_dict
 import subprocess
 
-data_dir    = '/Volumes/WD_Elements/DeepMIP_database/ceda/deepmip-eocene-p1/'
+# data_dir    = '/Volumes/WD_Elements/DeepMIP_database/ceda/deepmip-eocene-p1/'
+data_dir    = '/Users/wb19586/Documents/coding_github/aprp_deepmip/data/deepmip-eocene-p1/'
 out_dir = '/Users/wb19586/Documents/coding_github/aprp_deepmip/aprp_output_data/deepmip/'
 
 months      = [0, 11]
@@ -16,7 +17,7 @@ if not os.path.exists(out_dir):
 
 for model in deepmip_dict.keys():
     print(model)
-    for i in range( (deepmip_dict[model]['ncase'] + deepmip_dict[model]['nsens'])-1):
+    for i in range( deepmip_dict[model]['ncase'] ):
         print(deepmip_dict[model]['contr'][i])
         prefix1     = data_dir + deepmip_dict[model]['group'] + '/' + model + '/' + deepmip_dict[model]['contr'][i] + '/' + deepmip_dict[model]['versn'] + '/climatology/'
         prefix2     = data_dir + deepmip_dict[model]['group'] + '/' + model + '/' + deepmip_dict[model]['sensi'][i] + '/' + deepmip_dict[model]['versn'] + '/climatology/'
@@ -31,7 +32,11 @@ for model in deepmip_dict.keys():
                        'rsus'   : prefix1 + 'rsus_'  + posfix1,
                        'rsuscs' : prefix1 + 'rsuscs_'+ posfix1,
                        'rsut'   : prefix1 + 'rsut_'  + posfix1,
-                       'rsutcs' : prefix1 + 'rsutcs_'+ posfix1}
+                       'rsutcs' : prefix1 + 'rsutcs_'+ posfix1,
+                       'rlut'   : prefix1 + 'rlut_'  + posfix1,
+                       'rlutcs' : prefix1 + 'rlutcs_'+ posfix1,
+                       'rlus'   : prefix1 + 'rlus_'  + posfix1,
+                       'rlds'   : prefix1 + 'rlds_'   + posfix1}
         sens_files  = {'clt'    : prefix2 + 'clt_'   + posfix2,
                        'tas'    : prefix2 + 'tas_'   + posfix2,
                        'rsds'   : prefix2 + 'rsds_'  + posfix2,
@@ -40,7 +45,12 @@ for model in deepmip_dict.keys():
                        'rsus'   : prefix2 + 'rsus_'  + posfix2,
                        'rsuscs' : prefix2 + 'rsuscs_'+ posfix2,
                        'rsut'   : prefix2 + 'rsut_'  + posfix2,
-                       'rsutcs' : prefix2 + 'rsutcs_'+ posfix2}
+                       'rsutcs' : prefix2 + 'rsutcs_'+ posfix2,
+                       'rlut'   : prefix2 + 'rlut_'  + posfix2,
+                       'rlutcs' : prefix2 + 'rlutcs_'+ posfix2,
+                       'rlus'   : prefix2 + 'rlus_'  + posfix2,
+                       'rlds'   : prefix2 + 'rlds_'   + posfix2}
+        
         out_file    = out_dir + model + '.' + deepmip_dict[model]['contr'][i] +'.to.' + deepmip_dict[model]['sensi'][i] + '.aprp.nc'
         aprp.aprp_main(ctrl_files, months[0], months[1], sens_files, months[0], months[1], out_file)
 

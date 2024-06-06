@@ -59,6 +59,9 @@ def aprp_main(dataPaths1, firstMonth1, lastMonth1, dataPaths2, firstMonth2, last
     alf         = out_nc.createVariable('alf'    , 'f4', ('time','lat','lon'))
     alf_clr     = out_nc.createVariable('alf_clr', 'f4', ('time','lat','lon'))
     alf_oc      = out_nc.createVariable('alf_oc' , 'f4', ('time','lat','lon'))
+    sw_net_toa  = out_nc.createVariable('sw_net_toa' , 'f4', ('time','lat','lon'))
+    lw_net_toa  = out_nc.createVariable('lw_net_toa' , 'f4', ('time','lat','lon'))
+    lw_cre      = out_nc.createVariable('lw_cre' , 'f4', ('time','lat','lon'))
     lat.units       = 'degrees_north'
     lon.units       = 'degrees_east'
     time.units      = 'days since 0001-01-01 00:00:00'
@@ -83,6 +86,9 @@ def aprp_main(dataPaths1, firstMonth1, lastMonth1, dataPaths2, firstMonth2, last
     alf     [:] = dictC['surface']    [:]
     alf_clr [:] = dictC['surface_clr'][:]
     alf_oc  [:] = dictC['surface_oc'] [:]
+    sw_net_toa[:]= dictC['sw_net_toa'] [:]
+    lw_net_toa[:]= dictC['lw_net_toa'] [:]
+    lw_cre[:]= dictC['lw_cre'] [:]
     out_nc.close()
 
 # read data
@@ -97,6 +103,10 @@ def loadNetCDF(dataPaths, firstMonth, lastMonth):
     rsutcs  = nc4.Dataset(dataPaths['rsutcs']).variables['rsutcs'][firstMonth:lastMonth+1,:,:]
     rsdscs  = nc4.Dataset(dataPaths['rsdscs']).variables['rsdscs'][firstMonth:lastMonth+1,:,:]
     rsuscs  = nc4.Dataset(dataPaths['rsuscs']).variables['rsuscs'][firstMonth:lastMonth+1,:,:]
+    rlut    = nc4.Dataset(dataPaths['rlut'  ]).variables['rlut'  ][firstMonth:lastMonth+1,:,:]
+    rlutcs  = nc4.Dataset(dataPaths['rlutcs'  ]).variables['rlutcs'  ][firstMonth:lastMonth+1,:,:]
+    rlus    = nc4.Dataset(dataPaths['rlus'  ]).variables['rlus'  ][firstMonth:lastMonth+1,:,:]
+    rlds    = nc4.Dataset(dataPaths['rlds'  ]).variables['rlds'  ][firstMonth:lastMonth+1,:,:]
 
     Dataset = nc4.Dataset(dataPaths['tas'   ])
     for var in Dataset.variables:
@@ -150,6 +160,10 @@ def loadNetCDF(dataPaths, firstMonth, lastMonth):
     dictA['rsdsoc'] = rsdsoc
     dictA['rsusoc'] = rsusoc
     dictA['rsutoc'] = rsutoc
+    dictA['rlut']   = rlut
+    dictA['rlutcs'] = rlutcs
+    dictA['rlus']   = rlus
+    dictA['rlds']   = rlds
     dictA['c'] = c #Cloud fraction as fraction, not %
 
     return dictA
@@ -310,6 +324,9 @@ def d_albedo(dict1A, dict1B, dict2A, dict2B):
     #Calculate more useful radiation output
     CRF = dict1A['rsut'] - dict1A['rsutcs'] - dict2A['rsut'] + dict2A['rsutcs'] #Change in cloud radiative effect
     cs = dict1A['rsutcs'] - dict2A['rsutcs']  #Change in clear-sky upward SW flux at TOA
+    sw_net_toa = ( dict2A['rsdt'] - dict2A['rsut'] ) -  ( dict1A['rsdt'] - dict1A['rsut'] )  #Change in net SW flux at TOA
+    lw_net_toa =  dict2A['rlut'] - dict1A['rlut']  #Change in OLR at TOA
+    lw_cre =  ( dict2A['rlut'] - dict2A['rlutcs'] ) - ( dict1A['rlut'] - dict1A['rlutcs'] ) #Change in LW cloud radiative effect
 
     #Define a dictionary to return all the variables calculated here
     dictC = dict()
@@ -337,6 +354,9 @@ def d_albedo(dict1A, dict1B, dict2A, dict2B):
     dictC['noncloud_mu'] = noncloud_mu
     dictC['CRF'] = CRF
     dictC['cs'] = cs
+    dictC['sw_net_toa'] = sw_net_toa
+    dictC['lw_net_toa'] = lw_net_toa
+    dictC['lw_cre'] = lw_cre
 
     return dictC
 

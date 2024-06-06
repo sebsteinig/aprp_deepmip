@@ -104,6 +104,21 @@ def find_longitude_axis(variable):
             return i
     raise ValueError("Longitude dimension not found in variable dimensions")
 
+def find_time_axis(variable):
+    """
+    Determine the axis index for longitude in the given variable.
+
+    Args:
+    - variable: The NetCDF variable to examine.
+
+    Returns:
+    - The index of the longitude dimension.
+    """
+    for i, dim_name in enumerate(variable.dimensions):
+        if dim_name in ['t', 'time', 'time_counter']:
+            return i
+    raise ValueError("Longitude dimension not found in variable dimensions")
+
 # read input data
 def getZonalMeans(dataPaths, firstMonth, lastMonth):
     datasets = {var: nc4.Dataset(dataPaths[var]) for var in dataPaths}
@@ -124,7 +139,9 @@ def getZonalMeans(dataPaths, firstMonth, lastMonth):
         variable_data = dataset.variables[var][firstMonth:lastMonth+1,:,:]
         lon_axis = find_longitude_axis(dataset.variables[var])
         zonal_mean = np.mean(variable_data, axis=lon_axis)
-        zonal_means[f"{var}"] = zonal_mean
+        # print(zonal_mean[time_axis])
+        zonal_mean_t = np.mean(zonal_mean, axis=0)
+        zonal_means[f"{var}"] = zonal_mean_t
 
     zonal_means['lat'] = lat
     zonal_means['lon'] = lon
@@ -176,6 +193,7 @@ def ebm_partitioning(input_ctrl, input_sens, dict_aprp):
     emm_ctrl_cs     = input_ctrl['rlutcs'] / input_ctrl['rlus']
     heatt_ctrl_cs   = - ( input_ctrl['rsdt'] - input_ctrl['rsutcs'] - input_ctrl['rlutcs'] )
 
+
     # EBM for sensitivity experiment
     # all-sky fluxes
     palb_sens       = np.where(input_sens['rsdt'] != 0, input_sens['rsut'] / input_sens['rsdt'], 0)  # Avoid division by zero
@@ -189,9 +207,16 @@ def ebm_partitioning(input_ctrl, input_sens, dict_aprp):
     heatt_sens_cs      = - ( input_sens['rsdt'] - input_sens['rsutcs'] - input_sens['rlutcs'] )
 
     # perturb individual parameters to get their temperature response
-    dt_emm = calc_ebm_surface_temp(palb_ctrl, emm_sens, heatt_sens, insolation_ctrl) - calc_ebm_surface_temp(palb_ctrl, emm_ctrl, heatt_ctrl, insolation_ctrl)
-    dt_emm_cs = calc_ebm_surface_temp(palb_ctrl_cs, emm_sens_cs, heatt_sens_cs, insolation_ctrl) - calc_ebm_surface_temp(palb_ctrl_cs, emm_ctrl_cs, heatt_ctrl_cs, insolation_ctrl)
+    dt_emm = calc_ebm_surface_temp(palb_ctrl, emm_sens, heatt_ctrl, insolation_ctrl) - calc_ebm_surface_temp(palb_ctrl, emm_ctrl, heatt_ctrl, insolation_ctrl)
+    dt_emm_cs = calc_ebm_surface_temp(palb_ctrl_cs, emm_sens_cs, heatt_ctrl_cs, insolation_ctrl) - calc_ebm_surface_temp(palb_ctrl_cs, emm_ctrl_cs, heatt_ctrl_cs, insolation_ctrl)
     dt_lwcre = dt_emm - dt_emm_cs
+
+    # error here: 
+    # dt_lwcre = calc_ebm_surface_temp(palb_ctrl_cs, emm_sens_cs, heatt_sens_cs, insolation_ctrl) 
+    # dt_lwcre = input_sens['rlutcs'] / input_sens['rlus']
+    # dt_lwcre = calc_ebm_surface_temp(palb_ctrl_cs, emm_sens_cs, heatt_sens_cs, insolation_ctrl) 
+    # dt_lwcre = dt_emm_cs
+
 
     dt_palb = calc_ebm_surface_temp(palb_sens, emm_ctrl, heatt_ctrl, insolation_ctrl) - calc_ebm_surface_temp(palb_ctrl, emm_ctrl, heatt_ctrl, insolation_ctrl)
     dt_palb_cs = calc_ebm_surface_temp(palb_sens_cs, emm_ctrl_cs, heatt_ctrl_cs, insolation_ctrl) - calc_ebm_surface_temp(palb_ctrl_cs, emm_ctrl_cs, heatt_ctrl_cs, insolation_ctrl)
@@ -204,7 +229,8 @@ def ebm_partitioning(input_ctrl, input_sens, dict_aprp):
     # other possibility: surface albedo term is just change in clear-sky albedo
     # dt_salb = dt_palb_cs
 
-    dt_swcre = dt_palb - dt_salb
+    dt_swcre = dt_palb - dt_palb_cs
+
 # 
     dt_htc = calc_ebm_surface_temp(palb_ctrl, emm_ctrl, heatt_sens, insolation_ctrl) - calc_ebm_surface_temp(palb_ctrl, emm_ctrl, heatt_ctrl, insolation_ctrl)
 

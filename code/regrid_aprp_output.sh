@@ -21,6 +21,8 @@ for FILE in ${SOURCE_DIR}/*.nc; do
     # Define the output filename
     OUTPUT_FILE="${TARGET_DIR}/${FILENAME}.r180x90.nc"
 
+    echo creating "${OUTPUT_FILE}"
+
     # Remap the file
     cdo sethalo,0,1 -remapbil,${GRID} "${FILE}" "${OUTPUT_FILE}"
 done

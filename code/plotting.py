@@ -6,7 +6,7 @@ import cartopy.feature as cfeature
 
 from helper import find_geo_coords
 
-def global_hatched_map(ax, data, sign_agreement, lsm, time, levels, cmap, title ):
+def global_hatched_map(ax, data, sign_agreement, lsm, time, levels, cmap, title, gl_labels=True, fontsize=12 ):
     norm = BoundaryNorm(levels, ncolors=256, clip=False, extend='both')  # Create a BoundaryNorm
 
     lon_name, lat_name = find_geo_coords(data)
@@ -30,13 +30,13 @@ def global_hatched_map(ax, data, sign_agreement, lsm, time, levels, cmap, title 
 
         
     # Add gridlines and labels
-    gl = ax.gridlines(draw_labels=True, linewidth=1, color='gray', alpha=0.0, linestyle='--')
+    gl = ax.gridlines(draw_labels=gl_labels, linewidth=1, color='gray', alpha=0.0, linestyle='--')
     gl.top_labels = False
     gl.right_labels = False
     gl.xlabel_style = {'size': 8, 'color': 'black'}
     gl.ylabel_style = {'size': 8, 'color': 'black'}
     # ax.set_title(f'{exp_labels[col]} ({labels[row]})')
-    ax.set_title(title, weight='bold', fontsize=12)
+    ax.set_title(title, weight='bold', fontsize=fontsize)
 
     # Generate the plot to enable access to the labels' attributes
     plt.draw()
@@ -54,14 +54,15 @@ def global_hatched_map(ax, data, sign_agreement, lsm, time, levels, cmap, title 
 
     return im
 
-def common_colorbar(fig, im, levels, label, x=0.15, width=0.7):
-    cbar_ax = fig.add_axes([x, 0.05, width, 0.03])  # Adjust the axes dimensions as necessary
+def common_colorbar(fig, im, levels, label, all_labels=True, x=0.15, y=0.05, width=0.7, height=0.03):
+    cbar_ax = fig.add_axes([x, y, width, height])  # Adjust the axes dimensions as necessary
     cbar = fig.colorbar(im, cax=cbar_ax, orientation='horizontal', extend='both')
     cbar.set_label(label)
 
     # Set custom ticks and labels on the colorbar
-    cbar.set_ticks(levels)
-    cbar.set_ticklabels([str(level) for level in levels])
+    if all_labels:
+        cbar.set_ticks(levels)
+        cbar.set_ticklabels([str(level) for level in levels])
 
 def custom_colormap(original_cmap='RdBu_r'):
     # Create a custom colormap with white around zero
@@ -75,3 +76,19 @@ def custom_colormap(original_cmap='RdBu_r'):
     custom_cmap = LinearSegmentedColormap.from_list('custom_RdBu', newcolors)
 
     return custom_cmap
+
+def add_panel_labels(axs, labels=None, x_offset=-0.05, y_offset=1.05, **kwargs):
+    """Add panel labels to subplots.
+    
+    Args:
+        axs: List of axes.
+        labels: List of labels. If None, use (a), (b), (c), ...
+        x_offset: X offset for the labels.
+        y_offset: Y offset for the labels.
+        **kwargs: Additional keyword arguments passed to ax.text.
+    """
+    if labels is None:
+        labels = [f'({chr(97 + i)})' for i in range(len(axs))]
+    
+    for ax, label in zip(axs, labels):
+        ax.text(x_offset, y_offset, label, transform=ax.transAxes, **kwargs)
